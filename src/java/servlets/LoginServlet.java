@@ -6,8 +6,6 @@
 package servlets;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +31,7 @@ public class LoginServlet extends HttpServlet
             
             String currentUser = (String) session.getAttribute("currentlyLoged");
          
-            if (ex != null)
+            if (ex == null)
             {
                 if(currentUser != null)
                 {
@@ -45,7 +43,7 @@ public class LoginServlet extends HttpServlet
                     getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
                 }
             }
-            else
+            else if (ex.equals(""))
             {
                 session.invalidate();
                 request.setAttribute("inputException", "You have successfully logged out.");
@@ -59,7 +57,7 @@ public class LoginServlet extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-        HttpSession session = request.getSession();//
+        
         // get the input the user entered
         String name = request.getParameter("inputOne");//
         String pass = request.getParameter("inputTwo");//
@@ -68,25 +66,25 @@ public class LoginServlet extends HttpServlet
        
         User userData = accServ.login(name, pass);
 
-        if (accServ.login(name, pass) == null) 
+        if (userData == null) 
         {
             //display exception warning in ${tag} on login page
             request.setAttribute("inputException", "User info doesn't"+
-                                                    "match our records");
+                                                    " match our records");
             
             getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
         } 
         else 
         {
+            HttpSession session = request.getSession();//
             session.setAttribute("currentlyLoged", userData.getUserName());
             //head him over to Home page
             response.sendRedirect("Home");
         }
             
-        getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+        //getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
 
 
-        // not used
     }
 
 }
